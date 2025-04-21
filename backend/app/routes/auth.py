@@ -1,31 +1,36 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+
+from backend.app import models, schemas, database
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-users_db = {}
-
-class User(BaseModel):
-    username: str
-    password: str
-
-def hash_password(password: str):
+def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-def verify_password(plain_password: str, hashed_password: str):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 @router.post("/register")
-def register(user: User):
-    if user.username in users_db:
-        raise HTTPException(status_code=400, detail="Username already exists")
-    users_db[user.username] = hash_password(user.password)
-    return {"msg": "User registered"}
+def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
+    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+
+    hashed_pw = hash_password(user.password)
+    new_user = models.User(username=user.username, hashed_password=hashed_pw)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"msg": f"User '{user.username}' registered successfully."}
 
 @router.post("/login")
-def login(user: User):
-    if user.username not in users_db or not verify_password(user.password, users_db[user.username]):
+def login(user: schemas.UserLogin, db: Session = Depends(database.get_db)):
+    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
     return {"msg": f"Welcome back, {user.username}!"}
