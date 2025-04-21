@@ -12,7 +12,8 @@ uvicorn = "^0.29.0"
 streamlit = "^1.32.0"
 sqlalchemy = "^2.0.0"
 pydantic = "^2.6.0"
-
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+python-jose = "^3.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
@@ -24,3 +25,6 @@ ruff = "^0.4.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start-api = "uvicorn backend.app.main:app --reload"
