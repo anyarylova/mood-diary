@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "mood-diary"
+version = "0.1.0"
+description = "Mood tracking app using FastAPI and Streamlit"
+authors = ["Mohammad Jaafar <m.jaafar@innopolis.university>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.110.0"
+uvicorn = "^0.29.0"
+streamlit = "^1.32.0"
+sqlalchemy = "^2.0.0"
+pydantic = "^2.6.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+coverage = "^7.4.0"
+flake8 = "^7.0.0"
+bandit = "^1.7.6"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
