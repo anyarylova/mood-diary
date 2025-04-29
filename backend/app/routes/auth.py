@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from backend.app.auth_utils import create_access_token
+from fastapi import Form
+
 
 from backend.app import models, schemas, database
 
@@ -17,7 +20,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=400, detail="Username already taken")
 
     hashed_pw = hash_password(user.password)
     new_user = models.User(username=user.username, hashed_password=hashed_pw)
@@ -27,10 +30,20 @@ def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
 
     return {"msg": f"User '{user.username}' registered successfully."}
 
+
+
+
 @router.post("/login")
-def login(user: schemas.UserLogin, db: Session = Depends(database.get_db)):
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
+def login(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    db_user = db.query(models.User).filter(models.User.username == username).first()
+    if not db_user or not verify_password(password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {"msg": f"Welcome back, {user.username}!"}
+    access_token = create_access_token(data={"sub": db_user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
