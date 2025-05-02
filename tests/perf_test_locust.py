@@ -12,7 +12,7 @@ def random_username():
 
 
 class MoodDiaryUser(HttpUser):
-    host = "http://localhost:8000"  # Adjust if running backend elsewhere
+    host = "http://localhost:8000"
     wait_time = between(1, 2)
 
     def on_start(self):

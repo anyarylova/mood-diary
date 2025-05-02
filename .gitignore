@@ -180,3 +180,4 @@ cython_debug/
 # Mutmut
 .mutmut-cache/
 mutants/
+auth_token.json

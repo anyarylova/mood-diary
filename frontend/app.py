@@ -5,32 +5,8 @@ from enum import IntEnum
 import pandas as pd
 import altair as alt
 import html
-import json
-import os
 
-TOKEN_FILE = "auth_token.json"
 API_URL = "http://localhost:8000"
-
-
-def load_token():
-    if os.path.exists(TOKEN_FILE):
-        try:
-            with open(TOKEN_FILE, "r") as f:
-                data = json.load(f)
-                return data.get("token"), data.get("user")
-        except json.JSONDecodeError:
-            return None, None
-    return None, None
-
-
-def save_token(token, user):
-    with open(TOKEN_FILE, "w") as f:
-        json.dump({"token": token, "user": user}, f)
-
-
-def clear_token():
-    if os.path.exists(TOKEN_FILE):
-        os.remove(TOKEN_FILE)
 
 
 class MoodEnum(IntEnum):
@@ -41,11 +17,11 @@ class MoodEnum(IntEnum):
     excited = 4
 
 
-# Session state + rehydration
-if "token" not in st.session_state or not st.session_state.token:
-    token, user = load_token()
-    st.session_state.token = token
-    st.session_state.user = user
+# Session state initialization
+if "token" not in st.session_state:
+    st.session_state.token = None
+if "user" not in st.session_state:
+    st.session_state.user = None
 
 
 # Headers with token
@@ -69,7 +45,6 @@ def auth_form():
         if res.status_code == 200:
             st.session_state.token = res.json()["access_token"]
             st.session_state.user = username
-            save_token(st.session_state.token, username)
             st.success("Logged in!")
             st.rerun()
         else:
@@ -348,7 +323,7 @@ def get_today_quote():
 
 # Main UI
 st.title("📝 Mood Diary")
-st.subheader("Quote of the day:")
+st.title("Quote of the day")
 quote = get_today_quote()
 if quote:
     st.info(f"💬 {quote}")
@@ -361,7 +336,6 @@ else:
     if st.sidebar.button("Logout"):
         st.session_state.user = None
         st.session_state.token = None
-        clear_token()
         st.rerun()
 
     st.sidebar.title("Navigation")
