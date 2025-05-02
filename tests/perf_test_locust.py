@@ -6,7 +6,9 @@ from requests.exceptions import HTTPError
 
 
 def random_username():
-    return "user_" + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+    return "user_" + ''.join(
+        random.choices(string.ascii_lowercase + string.digits, k=8)
+        )
 
 
 class MoodDiaryUser(HttpUser):
@@ -29,7 +31,8 @@ class MoodDiaryUser(HttpUser):
                 # Already exists or failed? Try login
                 res = self.client.post(
                     "/auth/login",
-                    data={"username": self.username, "password": self.password},
+                    data={"username": self.username,
+                          "password": self.password},
                     name="/auth/login"
                 )
 
@@ -52,7 +55,8 @@ class MoodDiaryUser(HttpUser):
         }
 
         try:
-            res = self.client.post("/mood/", json=payload, headers=headers, name="/mood/")
+            res = self.client.post("/mood/", json=payload,
+                                   headers=headers, name="/mood/")
             if res.status_code == 400:
                 print("Duplicate mood or bad request.")
         except HTTPError as e:

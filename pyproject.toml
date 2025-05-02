@@ -42,3 +42,26 @@ start-api = "uvicorn backend.app.main:app --reload"
 filterwarnings = [
     "ignore:Please use `import python_multipart` instead."
 ]
+
+[tool.ruff]
+exclude = [
+    "./mutants",
+    ".venv",
+    ".mutmut-cache",
+    "__pycache__",
+    "migrations",
+    "tests/perf_test_locust.py"  # optional if noisy
+]
+
+[tool.flake8]
+exclude = [
+    "mutants",
+    ".venv",
+    ".mutmut-cache",
+    "__pycache__",
+    "migrations",
+]
+
+[tool.mutmut]
+paths_to_mutate = ["backend/app"]
+runner = "pytest"
