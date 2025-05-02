@@ -59,8 +59,6 @@ jobs:
       - name: Run Mutation Testing
         run: |
           poetry run mutmut run || true
-          echo "---- Mutation Test Results ----"
-          poetry run mutmut results || true
 
       - name: Run Locust Performance Test
         run: poetry run locust -f tests/perf_test_locust.py --headless --host=http://localhost:8000 -u 5 -r 2 -t 10s || true
