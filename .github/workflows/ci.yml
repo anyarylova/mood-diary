@@ -1,0 +1,65 @@
+name: CI Quality Gates
+
+on:
+  push:
+    branches: [main, testing-suite]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        ports: [5432:5432]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create false
+          poetry install
+
+      - name: Lint with Ruff and Flake8
+        run: |
+          poetry run ruff . --quiet
+          poetry run flake8 .
+
+      - name: Security check with Bandit
+        run: poetry run bandit -r backend/app
+
+      - name: Run Pytest with Coverage
+        run: |
+          poetry run pytest --cov=backend/app --cov-report=term-missing --cov-fail-under=80
+      
+
+      - name: Run Mutation Testing
+        run: poetry run mutmut run || true
+
+      - name: Start FastAPI app (background)
+        run: |
+          uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 5  # Wait for app to start
+
+      - name: Run Locust performance test
+        run: poetry run locust -f tests/perf_test_locust.py --headless -u 5 -r 2 -t 10s

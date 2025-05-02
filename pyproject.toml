@@ -26,6 +26,8 @@ bandit = "^1.7.6"
 ruff = "^0.4.0"
 pytest-cov = "^6.1.1"
 httpx = "^0.28.1"
+selenium = "^4.31.0"
+locust = "^2.36.2"
 
 [build-system]
 requires = ["poetry-core"]
