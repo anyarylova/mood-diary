@@ -1,11 +1,18 @@
 from datetime import date
 
+
 def test_submit_and_get_mood(client):
     # Register and login to get access token
-    register = client.post("/auth/register", json={"username": "moodtester", "password": "pass123"})
+    register = client.post(
+        "/auth/register",
+        json={"username": "moodtester", "password": "pass123"}
+        )
     assert register.status_code == 200
 
-    login = client.post("/auth/login", data={"username": "moodtester", "password": "pass123"})
+    login = client.post(
+        "/auth/login",
+        data={"username": "moodtester", "password": "pass123"}
+        )
     assert login.status_code == 200
     token = login.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -30,8 +37,12 @@ def test_submit_and_get_mood(client):
 
 
 def test_duplicate_mood_rejected(client):
-    client.post("/auth/register", json={"username": "dupuser", "password": "pass123"})
-    login = client.post("/auth/login", data={"username": "dupuser", "password": "pass123"})
+    client.post("/auth/register",
+                json={"username": "dupuser", "password": "pass123"}
+                )
+    login = client.post("/auth/login",
+                        data={"username": "dupuser", "password": "pass123"}
+                        )
     token = login.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 

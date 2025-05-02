@@ -42,7 +42,7 @@ jobs:
 
       - name: Lint with Ruff and Flake8
         run: |
-          poetry run ruff . --quiet
+          poetry run ruff check .
           poetry run flake8 .
 
       - name: Security check with Bandit

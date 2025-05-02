@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+
 def test_streamlit_register_login_log_mood():
     options = Options()
     options.add_argument("--headless=new")
@@ -30,27 +31,38 @@ def test_streamlit_register_login_log_mood():
         password_input.send_keys(password)
 
         # Click Register
-        register_button = next(btn for btn in driver.find_elements(By.TAG_NAME, "button") if "Register" in btn.text)
+        register_button = next(btn for btn in driver.find_elements(
+            By.TAG_NAME, "button") if "Register" in btn.text)
         register_button.click()
         time.sleep(2)
 
         # Click Login
-        login_button = next(btn for btn in driver.find_elements(By.TAG_NAME, "button") if "Login" in btn.text)
+        login_button = next(btn for btn in driver.find_elements(
+            By.TAG_NAME, "button") if "Login" in btn.text)
         login_button.click()
 
         # Wait for sidebar greeting
-        wait.until(EC.presence_of_element_located((By.XPATH, f"//p[contains(text(), '{username}')]")))
+        wait.until(EC.presence_of_element_located(
+            (By.XPATH, f"//p[contains(text(), '{username}')]")
+            ))
 
         # Mood form: leave dropdown as-is and fill note
-        text_area = wait.until(EC.presence_of_element_located((By.TAG_NAME, "textarea")))
+        text_area = wait.until(EC.presence_of_element_located(
+            (By.TAG_NAME, "textarea")
+            ))
         text_area.send_keys("testing with the sad mood.")
 
         # Submit
-        submit_button = next(btn for btn in driver.find_elements(By.TAG_NAME, "button") if "Submit Mood" in btn.text)
+        submit_button = next(btn for btn in driver.find_elements(
+            By.TAG_NAME, "button") if "Submit Mood" in btn.text
+            )
         submit_button.click()
 
         # Confirm submission
-        wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Mood logged successfully!')]")))
+        wait.until(EC.presence_of_element_located((
+            By.XPATH, "//*[contains(text(), 'Mood logged successfully!')]"
+            ))
+            )
 
     except Exception as e:
         driver.save_screenshot("debug.png")

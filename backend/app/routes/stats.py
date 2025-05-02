@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from collections import Counter
 from backend.app import models, database
@@ -6,12 +6,14 @@ from backend.app.auth_utils import get_current_user
 
 router = APIRouter()
 
+
 @router.get("/")
 def get_stats(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    moods = db.query(models.MoodEntry).filter(models.MoodEntry.user_id == current_user.id).all()
+    moods = db.query(models.MoodEntry).filter(
+        models.MoodEntry.user_id == current_user.id).all()
 
     if not moods:
         return {"message": "No mood entries found yet."}

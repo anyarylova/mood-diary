@@ -19,9 +19,11 @@ app.include_router(auth.router, prefix="/auth")
 app.include_router(mood.router, prefix="/mood")
 app.include_router(stats.router, prefix="/stats")
 
+
 @app.get("/")
 def read_root():
     return {"msg": "Welcome to Mood Diary API"}
+
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -29,13 +31,14 @@ models.Base.metadata.create_all(bind=database.engine)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="Mood Diary API",
         version="1.0.0",
-        description="Track your mood and view your mood history with secure login.",
+        description="Track your mood history with secure login.",
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
@@ -50,5 +53,6 @@ def custom_openapi():
             method["security"] = [{"OAuth2PasswordBearer": []}]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 app.openapi = custom_openapi

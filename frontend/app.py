@@ -2,11 +2,11 @@ import streamlit as st
 import requests
 from datetime import date
 from enum import IntEnum
-import pandas as pd  
-import calendar
+import pandas as pd
 import altair as alt
 
 API_URL = "http://localhost:8000"
+
 
 class MoodEnum(IntEnum):
     sad = 0
@@ -15,11 +15,13 @@ class MoodEnum(IntEnum):
     happy = 3
     excited = 4
 
+
 # Session state initialization
 if "token" not in st.session_state:
     st.session_state.token = None
 if "user" not in st.session_state:
     st.session_state.user = None
+
 
 # Headers with token
 def get_headers():
@@ -27,14 +29,18 @@ def get_headers():
         return {"Authorization": f"Bearer {st.session_state.token}"}
     return {}
 
+
 # Authentication form
 def auth_form():
     st.subheader("Login or Register")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-    
+
     if st.button("Login"):
-        res = requests.post(f"{API_URL}/auth/login", data={"username": username, "password": password})
+        res = requests.post(
+            f"{API_URL}/auth/login",
+            data={"username": username, "password": password}
+        )
         if res.status_code == 200:
             st.session_state.token = res.json()["access_token"]
             st.session_state.user = username
@@ -45,12 +51,16 @@ def auth_form():
             st.error(error_detail)
 
     if st.button("Register"):
-        res = requests.post(f"{API_URL}/auth/register", json={"username": username, "password": password})
+        res = requests.post(
+            f"{API_URL}/auth/register",
+            json={"username": username, "password": password}
+        )
         if res.status_code == 200:
             st.success("Registered! Now log in.")
         else:
             error_detail = res.json().get("detail", "Registration failed.")
             st.error(error_detail)
+
 
 # Mood entry form
 def mood_entry_form():
@@ -62,7 +72,8 @@ def mood_entry_form():
         "4 - 😊 Happy": 3,
         "5 - 😄 Excited": 4
     }
-    mood_str = st.selectbox("How do you feel today?", list(mood_options.keys()))
+    mood_str = st.selectbox(
+        "How do you feel today?", list(mood_options.keys()))
     description = st.text_area("Describe your mood")
     entry_date = st.date_input("Date", value=date.today())
 
@@ -70,7 +81,11 @@ def mood_entry_form():
         mood_int = mood_options[mood_str]
         res = requests.post(
             f"{API_URL}/mood/",
-            json={"mood": mood_int, "note": description, "date": entry_date.isoformat()},
+            json={
+                "mood": mood_int,
+                "note": description,
+                "date": entry_date.isoformat()
+            },
             headers=get_headers()
         )
         if res.status_code == 200:
@@ -78,21 +93,20 @@ def mood_entry_form():
         else:
             st.error(res.json().get("detail", "Failed to log mood."))
 
+
 # View mood history
 def view_moods():
     st.subheader("📖 Mood History")
     res = requests.get(f"{API_URL}/mood/", headers=get_headers())
-    
+
     if res.status_code == 200:
         moods = res.json()
         if not moods:
             st.info("You haven't logged any moods yet.")
             return
 
-        # Sort moods by date
         moods = sorted(moods, key=lambda x: x["date"], reverse=True)
 
-        # Mood ID to Emoji + Label
         mood_map = {
             0: "😔 Sad",
             1: "🙁 Low",
@@ -103,14 +117,13 @@ def view_moods():
 
         for m in moods:
             mood_label = mood_map.get(m["mood"], "Unknown Mood")
-            date_str = m['date']
-            note = m.get('note', 'No description.')
+            date_str = m["date"]
+            note = m.get("note", "No description.")
 
             with st.container():
                 st.markdown(f"### {mood_label} ({date_str})")
                 st.write(f"**Note:** {note}")
-                st.markdown("---")  # line separator
-
+                st.markdown("---")
     else:
         st.error(res.json().get("detail", "Failed to load mood history."))
 
@@ -131,10 +144,11 @@ def view_stats():
         st.metric("Total Moods Logged", total_logged)
         st.metric("Average Mood Score", average_mood)
 
-        # Show a custom message based on average mood
         mood_message = ""
         if average_mood <= 1.5:
-            mood_message = "😔 It's been tough lately. Remember, it's okay to have bad days!"
+            mood_message = (
+                "😔 It's been tough lately. it's okay to have bad days!"
+            )
         elif 1.5 < average_mood <= 2.5:
             mood_message = "🙁 Hang in there! Brighter days are coming."
         elif 2.5 < average_mood <= 3.5:
@@ -158,10 +172,8 @@ def view_stats():
 
         st.markdown("### 😀 Most Common Mood")
         st.success(stats.get("most_common_mood", "N/A"))
-
     else:
         st.error(res.json().get("detail", "Failed to fetch stats."))
-
 
 
 def view_graph():
@@ -174,12 +186,10 @@ def view_graph():
             st.info("No mood entries to show.")
             return
 
-        # Convert to DataFrame
         df = pd.DataFrame(moods)
         df["date"] = pd.to_datetime(df["date"])
         df = df.sort_values("date")
 
-        # Only last 30 days
         last_month = pd.Timestamp.today() - pd.Timedelta(days=30)
         df_last_month = df[df["date"] >= last_month]
 
@@ -190,24 +200,19 @@ def view_graph():
             3: "😊 Happy",
             4: "😄 Excited"
         }
-        score_map = {
-            0: 1,
-            1: 2,
-            2: 3,
-            3: 4,
-            4: 5
-        }
+        score_map = {k: k + 1 for k in mood_map}
+
         df_last_month["mood_score"] = df_last_month["mood"].map(score_map)
         df_last_month["mood_label"] = df_last_month["mood"].map(mood_map)
 
         if not df_last_month.empty:
             chart = alt.Chart(df_last_month).mark_line(point=True).encode(
-                x=alt.X('date:T', title='Date'),
-                y=alt.Y('mood_score:Q', title='Mood Score'),
+                x=alt.X("date:T", title="Date"),
+                y=alt.Y("mood_score:Q", title="Mood Score"),
                 tooltip=[
-                    alt.Tooltip('date:T', title="Date"),
-                    alt.Tooltip('mood_label:N', title="Mood"),
-                    alt.Tooltip('note:N', title="Note")
+                    alt.Tooltip("date:T", title="Date"),
+                    alt.Tooltip("mood_label:N", title="Mood"),
+                    alt.Tooltip("note:N", title="Note")
                 ]
             ).properties(
                 width=700,
@@ -221,10 +226,6 @@ def view_graph():
         st.error(res.json().get("detail", "Failed to load moods."))
 
 
-
-
-
-
 def view_calendar():
     st.subheader("📅 Mood Calendar")
     res = requests.get(f"{API_URL}/mood/", headers=get_headers())
@@ -235,28 +236,22 @@ def view_calendar():
             st.info("No mood entries to show.")
             return
 
-        # Prepare the dataframe
         df = pd.DataFrame(moods)
         df["date"] = pd.to_datetime(df["date"])
         df = df.sort_values("date")
 
         today = pd.Timestamp.today()
-        current_year = today.year
         current_month = today.month
-
-        # Filter only current month
         df = df[df["date"].dt.month == current_month]
 
         if df.empty:
             st.info("No moods recorded this month.")
             return
 
-        # Add weekday and week number to help with grid layout
         df["day"] = df["date"].dt.day
         df["weekday"] = df["date"].dt.weekday
         df["week"] = df["date"].dt.isocalendar().week
 
-        # Map moods to emojis
         mood_map = {
             0: "😔",
             1: "🙁",
@@ -273,21 +268,27 @@ def view_calendar():
         }
         df["emoji"] = df["mood"].map(mood_map)
         df["mood_label"] = df["mood"].map(mood_label_map)
-
-        # Build the calendar plot
+        days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         chart = alt.Chart(df).mark_text(
-            align='center',
-            baseline='middle',
-            size=30  # Emoji size
+            align="center",
+            baseline="middle",
+            size=30
         ).encode(
-            x=alt.X('weekday:O', title='Day of Week',
-                    axis=alt.Axis(labels=True, labelExpr='["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][datum.value]')),
-            y=alt.Y('week:O', title='Week'),
-            text='emoji:N',
+            x=alt.X(
+                "weekday:O",
+                title="Day of Week",
+                axis=alt.Axis(
+                    labels=True,
+                    labelExpr=f"{days_of_week}[datum.value]"
+
+                )
+            ),
+            y=alt.Y("week:O", title="Week"),
+            text="emoji:N",
             tooltip=[
-                alt.Tooltip('date:T', title="Date"),
-                alt.Tooltip('mood_label:N', title="Mood"),
-                alt.Tooltip('note:N', title="Note")
+                alt.Tooltip("date:T", title="Date"),
+                alt.Tooltip("mood_label:N", title="Mood"),
+                alt.Tooltip("note:N", title="Note")
             ]
         ).properties(
             width=600,
@@ -296,7 +297,6 @@ def view_calendar():
         )
 
         st.altair_chart(chart, use_container_width=True)
-
     else:
         st.error(res.json().get("detail", "Failed to load moods."))
 
@@ -314,8 +314,10 @@ else:
         st.rerun()
 
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ["Log Mood", "View History", "View Stats", "Mood Graph", "Calendar"])
-
+    page = st.sidebar.radio(
+        "Go to",
+        ["Log Mood", "View History", "View Stats", "Mood Graph", "Calendar"]
+    )
 
     if page == "Log Mood":
         mood_entry_form()
@@ -327,8 +329,3 @@ else:
         view_graph()
     elif page == "Calendar":
         view_calendar()
-
-
-
-
-

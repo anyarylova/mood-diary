@@ -1,9 +1,14 @@
 from datetime import date
 
+
 def test_stats_endpoint(client):
     # Register and login
-    client.post("/auth/register", json={"username": "statsuser", "password": "pass123"})
-    login = client.post("/auth/login", data={"username": "statsuser", "password": "pass123"})
+    client.post("/auth/register",
+                json={"username": "statsuser", "password": "pass123"}
+                )
+    login = client.post("/auth/login",
+                        data={"username": "statsuser", "password": "pass123"}
+                        )
     token = login.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
