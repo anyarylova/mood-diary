@@ -15,7 +15,4 @@ logger.addHandler(console_handler)
 # File handler
 file_handler = logging.FileHandler("mood_diary.log")    # pragma: no cover
 file_handler.setFormatter(formatter)    # pragma: no cover
-logger.addHandler(file_handler) # pragma: no cover
-
-
-
+logger.addHandler(file_handler)  # pragma: no cover

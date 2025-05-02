@@ -5,8 +5,32 @@ from enum import IntEnum
 import pandas as pd
 import altair as alt
 import html
+import json
+import os
 
+TOKEN_FILE = "auth_token.json"
 API_URL = "http://localhost:8000"
+
+
+def load_token():
+    if os.path.exists(TOKEN_FILE):
+        try:
+            with open(TOKEN_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("token"), data.get("user")
+        except json.JSONDecodeError:
+            return None, None
+    return None, None
+
+
+def save_token(token, user):
+    with open(TOKEN_FILE, "w") as f:
+        json.dump({"token": token, "user": user}, f)
+
+
+def clear_token():
+    if os.path.exists(TOKEN_FILE):
+        os.remove(TOKEN_FILE)
 
 
 class MoodEnum(IntEnum):
@@ -17,11 +41,11 @@ class MoodEnum(IntEnum):
     excited = 4
 
 
-# Session state initialization
-if "token" not in st.session_state:
-    st.session_state.token = None
-if "user" not in st.session_state:
-    st.session_state.user = None
+# Session state + rehydration
+if "token" not in st.session_state or not st.session_state.token:
+    token, user = load_token()
+    st.session_state.token = token
+    st.session_state.user = user
 
 
 # Headers with token
@@ -45,6 +69,7 @@ def auth_form():
         if res.status_code == 200:
             st.session_state.token = res.json()["access_token"]
             st.session_state.user = username
+            save_token(st.session_state.token, username)
             st.success("Logged in!")
             st.rerun()
         else:
@@ -311,8 +336,23 @@ def view_calendar():
     st.altair_chart(chart, use_container_width=True)
 
 
+def get_today_quote():
+    try:
+        res = requests.get("https://zenquotes.io/api/today", timeout=5)
+        if res.status_code == 200:
+            data = res.json()[0]
+            return f'"{data["q"]}" — {data["a"]}'
+    except requests.RequestException:
+        return None
+
+
 # Main UI
 st.title("📝 Mood Diary")
+st.subheader("Quote of the day:")
+quote = get_today_quote()
+if quote:
+    st.info(f"💬 {quote}")
+
 
 if not st.session_state.user or not st.session_state.token:
     auth_form()
@@ -321,6 +361,7 @@ else:
     if st.sidebar.button("Logout"):
         st.session_state.user = None
         st.session_state.token = None
+        clear_token()
         st.rerun()
 
     st.sidebar.title("Navigation")
