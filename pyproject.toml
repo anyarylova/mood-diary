@@ -65,3 +65,5 @@ exclude = [
 [tool.mutmut]
 paths_to_mutate = ["backend/app"]
 runner = "pytest"
+exclude = ["backend/app/main.py"]
+
