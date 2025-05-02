@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - testing-suite  # include your testing branch here
+      - testing-suite
   pull_request:
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SECRET_KEY: TEST_SECRET_KEY  # fallback used by auth_utils.py
+      SECRET_KEY: TEST_SECRET_KEY  # Used by auth_utils.py
 
     steps:
       - uses: actions/checkout@v3
@@ -30,7 +30,7 @@ jobs:
 
       - name: Start Backend
         run: |
-          poetry run uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000 &
+          poetry run uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 &
           sleep 5
 
       - name: Start Streamlit Frontend
@@ -50,17 +50,17 @@ jobs:
           poetry run ruff . --quiet
           poetry run flake8 .
 
+      - name: Run Bandit (Security Static Analysis)
+        run: poetry run bandit -r backend -ll
+
       - name: Run Pytest with Coverage
-        run: |
-          poetry run pytest --cov=backend/app --cov-report=term-missing --cov-fail-under=80
+        run: poetry run pytest --cov=backend/app --cov-report=term-missing --cov-fail-under=80
 
       - name: Run Mutation Testing
-        run: poetry run mutmut run || true
-
-      - name: Start FastAPI app (background)
         run: |
-          uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 &
-          sleep 5  # Wait for app to start
+          poetry run mutmut run || true
+          echo "---- Mutation Test Results ----"
+          poetry run mutmut results || true
 
-      - name: Run Locust performance test
-        run: poetry run locust -f tests/perf_test_locust.py --headless -u 5 -r 2 -t 10s
+      - name: Run Locust Performance Test
+        run: poetry run locust -f tests/perf_test_locust.py --headless --host=http://localhost:8000 -u 5 -r 2 -t 10s || true

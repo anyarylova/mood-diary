@@ -1,0 +1,8 @@
+{
+    "exit_code_by_key": {
+        "backend.app.database.x_get_db__mutmut_1": 33
+    },
+    "hash_by_function_name": {
+        "get_db": "07842f1602f22b8d1534856093d8378a"
+    }
+}

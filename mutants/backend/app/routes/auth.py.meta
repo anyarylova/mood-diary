@@ -1,0 +1,13 @@
+{
+    "exit_code_by_key": {
+        "backend.app.routes.auth.x_hash_password__mutmut_1": 1,
+        "backend.app.routes.auth.x_verify_password__mutmut_1": 1,
+        "backend.app.routes.auth.x_verify_password__mutmut_2": 1,
+        "backend.app.routes.auth.x_verify_password__mutmut_3": 1,
+        "backend.app.routes.auth.x_verify_password__mutmut_4": 1
+    },
+    "hash_by_function_name": {
+        "hash_password": "af6cc1741fc7873d8370097dc9e494c7",
+        "verify_password": "0f6a15361b1a9927c3deab5fadebe39f"
+    }
+}

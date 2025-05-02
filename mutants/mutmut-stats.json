@@ -1,0 +1,43 @@
+{
+    "tests_by_mangled_function_name": {
+        "backend.app.routes.auth.x_verify_password": [
+            "tests/test_mood.py::test_duplicate_mood_rejected",
+            "tests/test_stats.py::test_stats_endpoint",
+            "tests/test_auth.py::test_register_and_login",
+            "tests/test_mood.py::test_submit_and_get_mood"
+        ],
+        "backend.app.routes.auth.x_hash_password": [
+            "tests/test_mood.py::test_duplicate_mood_rejected",
+            "tests/test_stats.py::test_stats_endpoint",
+            "tests/test_auth.py::test_register_and_login",
+            "tests/test_mood.py::test_submit_and_get_mood"
+        ],
+        "backend.app.auth_utils.x_create_access_token": [
+            "tests/test_mood.py::test_duplicate_mood_rejected",
+            "tests/test_stats.py::test_stats_endpoint",
+            "tests/test_auth.py::test_register_and_login",
+            "tests/test_mood.py::test_submit_and_get_mood"
+        ],
+        "backend.app.auth_utils.x_get_current_user": [
+            "tests/test_mood.py::test_duplicate_mood_rejected",
+            "tests/test_stats.py::test_stats_endpoint",
+            "tests/test_auth_invalid.py::test_invalid_token_rejected",
+            "tests/test_mood.py::test_submit_and_get_mood"
+        ],
+        "backend.app.auth_utils.x_decode_access_token": [
+            "tests/test_mood.py::test_duplicate_mood_rejected",
+            "tests/test_stats.py::test_stats_endpoint",
+            "tests/test_auth_invalid.py::test_invalid_token_rejected",
+            "tests/test_mood.py::test_submit_and_get_mood"
+        ]
+    },
+    "duration_by_test": {
+        "tests/test_auth.py::test_register_and_login": 0.00023518399939348456,
+        "tests/test_auth_invalid.py::test_invalid_token_rejected": 0.00022875499962538015,
+        "tests/test_mood.py::test_submit_and_get_mood": 0.00018256899966218043,
+        "tests/test_mood.py::test_duplicate_mood_rejected": 0.0001697369989415165,
+        "tests/test_stats.py::test_stats_endpoint": 0.00016947600124694873,
+        "tests/test_ui_streamlit.py::test_streamlit_register_login_log_mood": 0.00015884300046309363
+    },
+    "stats_time": 2.644720926
+}
