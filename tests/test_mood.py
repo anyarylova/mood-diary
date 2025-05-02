@@ -27,3 +27,25 @@ def test_submit_and_get_mood(client):
     moods = res.json()
     assert isinstance(moods, list)
     assert any(m["note"] == "Feeling great today!" for m in moods)
+
+
+def test_duplicate_mood_rejected(client):
+    client.post("/auth/register", json={"username": "dupuser", "password": "pass123"})
+    login = client.post("/auth/login", data={"username": "dupuser", "password": "pass123"})
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    mood_payload = {
+        "date": str(date.today()),
+        "mood": 3,
+        "note": "First entry"
+    }
+
+    # First submission should pass
+    res1 = client.post("/mood/", json=mood_payload, headers=headers)
+    assert res1.status_code == 200
+
+    # Second submission for same date should fail
+    res2 = client.post("/mood/", json=mood_payload, headers=headers)
+    assert res2.status_code == 400
+    assert "already exists" in res2.json()["detail"]
