@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from collections import Counter
 from backend.app import models, database
 from backend.app.auth_utils import get_current_user
+from backend.app.logger import logger
 
 router = APIRouter()
 
@@ -37,7 +38,7 @@ def get_stats(
         4: "😄 Excited"
     }
     most_common_mood_label = mood_labels.get(most_common_mood_id, "Unknown")
-
+    logger.info(f"User {current_user.username} requested mood stats")
     return {
         "total_moods_logged": total_moods,
         "average_mood_score": round(average_mood, 2),

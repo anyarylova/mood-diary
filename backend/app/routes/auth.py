@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from backend.app.auth_utils import create_access_token
 from fastapi import Form
-
-
+from backend.app.logger import logger
 from backend.app import models, schemas, database
 
 router = APIRouter()
@@ -32,7 +31,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-
+    logger.info(f"User registered: {user.username}")
     return {"msg": f"User '{user.username}' registered successfully."}
 
 
@@ -48,4 +47,5 @@ def login(
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(data={"sub": db_user.username})
+    logger.info(f"User logged in: {db_user.username}")
     return {"access_token": access_token, "token_type": "bearer"}

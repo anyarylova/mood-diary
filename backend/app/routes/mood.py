@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.app import models, schemas, database
 from backend.app.auth_utils import get_current_user
+from backend.app.logger import logger
 
 router = APIRouter()
 
@@ -28,6 +29,7 @@ def create_mood_entry(
     db.add(entry)
     db.commit()
     db.refresh(entry)
+    logger.info(f"User {current_user.username} logged mood for {mood.date}: {mood.mood}")
     return entry
 
 
