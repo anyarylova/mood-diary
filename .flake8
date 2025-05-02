@@ -1,2 +1,2 @@
 [flake8]
-exclude = .venv, .mutmut-cache, __pycache__, migrations, mutants
+exclude = .git,__pycache__,.venv,.mutmut-cache,mutants

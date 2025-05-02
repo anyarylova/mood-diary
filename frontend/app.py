@@ -4,6 +4,7 @@ from datetime import date
 from enum import IntEnum
 import pandas as pd
 import altair as alt
+import html
 
 API_URL = "http://localhost:8000"
 
@@ -122,7 +123,7 @@ def view_moods():
 
             with st.container():
                 st.markdown(f"### {mood_label} ({date_str})")
-                st.write(f"**Note:** {note}")
+                st.write(f"**Note:** {html.escape(note)}")
                 st.markdown("---")
     else:
         st.error(res.json().get("detail", "Failed to load mood history."))
@@ -163,12 +164,12 @@ def view_stats():
         st.markdown("### 🏆 Best Day")
         st.write(f"**Date:** {stats['best_day']['date']}")
         st.write(f"**Mood:** {stats['best_day']['mood']}")
-        st.write(f"**Note:** {stats['best_day']['note']}")
+        st.write(f"**Note:** {html.escape(stats['best_day']['note'])}")
 
         st.markdown("### 💔 Worst Day")
         st.write(f"**Date:** {stats['worst_day']['date']}")
         st.write(f"**Mood:** {stats['worst_day']['mood']}")
-        st.write(f"**Note:** {stats['worst_day']['note']}")
+        st.write(f"**Note:** {html.escape(stats['worst_day']['note'])}")
 
         st.markdown("### 😀 Most Common Mood")
         st.success(stats.get("most_common_mood", "N/A"))

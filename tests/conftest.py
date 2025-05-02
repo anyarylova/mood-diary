@@ -39,3 +39,21 @@ def client(db):
 
     app.dependency_overrides[get_db] = override_get_db
     return TestClient(app)
+
+# Fixture: test user credentials
+@pytest.fixture
+def test_user():
+    return {"username": "testuser", "password": "testpass123"}
+
+# Fixture: register test user
+@pytest.fixture
+def registered_user(client, test_user):
+    client.post("/auth/register", json=test_user)
+    return test_user
+
+# Fixture: authorized headers with token
+@pytest.fixture
+def authorized_headers(client, registered_user):
+    response = client.post("/auth/login", data=registered_user)
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}

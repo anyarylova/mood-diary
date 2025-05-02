@@ -33,3 +33,9 @@ def test_stats_endpoint(client):
     assert data["total_moods_logged"] == 3
     assert round(data["average_mood_score"], 2) == 2.67
     assert "most_common_mood" in data
+
+
+def test_stats_no_moods(client, authorized_headers):
+    res = client.get("/stats/", headers=authorized_headers)
+    assert res.status_code == 200
+    assert "message" in res.json()
