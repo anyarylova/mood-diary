@@ -117,6 +117,13 @@ ipython_config.py
 .pdm-python
 .pdm-build/
 
+*.db
+*.png
+auth_token.json
+__pycache__/
+.env
+
+
 # Mutmut artifacts
 .mutmut-cache/
 mutants/
