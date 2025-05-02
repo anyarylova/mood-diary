@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date
 
 class UserCreate(BaseModel):
@@ -15,6 +15,4 @@ class MoodCreate(BaseModel):
 
 class MoodOut(MoodCreate):
     id: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

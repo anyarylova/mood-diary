@@ -23,7 +23,7 @@ def create_mood_entry(
     if existing:
         raise HTTPException(status_code=400, detail="Mood for this date already exists.")
 
-    entry = models.MoodEntry(**mood.dict(), user_id=user_id)
+    entry = models.MoodEntry(**mood.model_dump(), user_id=user_id)
     db.add(entry)
     db.commit()
     db.refresh(entry)

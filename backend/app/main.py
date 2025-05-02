@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.routes import auth, mood, stats
 from backend.app import models, database
-
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.openapi.utils import get_openapi
 
 app = FastAPI(title="Mood Diary API")
 
@@ -25,8 +26,6 @@ def read_root():
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
 
-from fastapi.security import OAuth2PasswordBearer
-from fastapi.openapi.utils import get_openapi
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
