@@ -4,9 +4,12 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from backend.app import models, database
+import os
+from dotenv import load_dotenv
 
-# Secret key (should be random in production!)
-SECRET_KEY = "supersecretkeyforjwt123456"
+load_dotenv()  # Loads variables from a .env file into environment
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
