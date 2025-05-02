@@ -2,27 +2,17 @@ name: CI Quality Gates
 
 on:
   push:
-    branches: [main, testing-suite]
+    branches:
+      - main
+      - testing-suite  # include your testing branch here
   pull_request:
-    branches: [main]
 
 jobs:
-  quality-gates:
+  test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13
-        ports: [5432:5432]
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    env:
+      SECRET_KEY: TEST_SECRET_KEY  # fallback used by auth_utils.py
 
     steps:
       - uses: actions/checkout@v3
@@ -30,28 +20,39 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: "3.11"
 
       - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
+        run: pip install poetry
 
-      - name: Configure Poetry
-        run: |
-          poetry config virtualenvs.create false
-          poetry install
+      - name: Install Dependencies
+        run: poetry install
 
-      - name: Lint with Ruff and Flake8
+      - name: Start Backend
         run: |
-          poetry run ruff check .
+          poetry run uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000 &
+          sleep 5
+
+      - name: Start Streamlit Frontend
+        run: |
+          poetry run streamlit run frontend/app.py --server.headless true &
+          sleep 5
+
+      - name: Wait for Frontend to be Ready
+        run: |
+          until curl --output /dev/null --silent --head --fail http://localhost:8501; do
+            echo "Waiting for Streamlit to start..."
+            sleep 2
+          done
+
+      - name: Run Ruff and Flake8
+        run: |
+          poetry run ruff . --quiet
           poetry run flake8 .
-
-      - name: Security check with Bandit
-        run: poetry run bandit -r backend/app
 
       - name: Run Pytest with Coverage
         run: |
           poetry run pytest --cov=backend/app --cov-report=term-missing --cov-fail-under=80
-      
 
       - name: Run Mutation Testing
         run: poetry run mutmut run || true

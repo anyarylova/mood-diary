@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Loads variables from a .env file into environment
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY", "TEST_SECRET_KEY")  # Default key for CI
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
