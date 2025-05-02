@@ -17,16 +17,18 @@ def get_stats(
         models.MoodEntry.user_id == current_user.id).all()
 
     if not moods:
+        logger.info(
+            f"Stats requested by user={current_user.username}, "
+            "but no entries found."
+        )
         return {"message": "No mood entries found yet."}
 
     total_moods = len(moods)
     average_mood = sum(m.mood for m in moods) / total_moods
 
-    # Best and worst day
     best_mood = max(moods, key=lambda x: x.mood)
     worst_mood = min(moods, key=lambda x: x.mood)
 
-    # Most common mood
     mood_counter = Counter(m.mood for m in moods)
     most_common_mood_id, _ = mood_counter.most_common(1)[0]
 
@@ -37,8 +39,10 @@ def get_stats(
         3: "😊 Happy",
         4: "😄 Excited"
     }
-    most_common_mood_label = mood_labels.get(most_common_mood_id, "Unknown")
-    logger.info(f"User {current_user.username} requested mood stats")
+    logger.info(
+        f"Stats generated for user={current_user.username}, "
+        f"entries={total_moods}"
+    )
     return {
         "total_moods_logged": total_moods,
         "average_mood_score": round(average_mood, 2),
@@ -52,5 +56,5 @@ def get_stats(
             "mood": mood_labels.get(worst_mood.mood, "Unknown"),
             "note": worst_mood.note
         },
-        "most_common_mood": most_common_mood_label
+        "most_common_mood": mood_labels.get(most_common_mood_id, "Unknown")
     }

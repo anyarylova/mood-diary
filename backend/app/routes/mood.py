@@ -13,23 +13,30 @@ def create_mood_entry(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    # No more hardcoded user!
     user_id = current_user.id
 
-    # Check for duplicate
     existing = db.query(models.MoodEntry).filter(
         models.MoodEntry.date == mood.date,
         models.MoodEntry.user_id == user_id
     ).first()
     if existing:
+        logger.warning(
+            f"Duplicate mood entry rejected for user {current_user.username} "
+            f"on {mood.date}"
+        )
         raise HTTPException(
-            status_code=400, detail="Mood for this date already exists.")
+            status_code=400, detail="Mood for this date already exists."
+        )
 
     entry = models.MoodEntry(**mood.model_dump(), user_id=user_id)
     db.add(entry)
     db.commit()
     db.refresh(entry)
-    logger.info(f"User {current_user.username} logged mood for {mood.date}: {mood.mood}")
+
+    logger.info(
+        f"Mood logged: user={current_user.username}, "
+        f"date={mood.date}, mood={mood.mood}"
+    )
     return entry
 
 
@@ -38,9 +45,12 @@ def get_mood_entries(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    user_id = current_user.id
     moods = db.query(models.MoodEntry).filter(
-        models.MoodEntry.user_id == user_id
+        models.MoodEntry.user_id == current_user.id
     ).order_by(models.MoodEntry.date.desc()).all()
 
+    logger.info(
+        f"Mood history retrieved: user={current_user.username}, "
+        f"entries={len(moods)}"
+    )
     return moods

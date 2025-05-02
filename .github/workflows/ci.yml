@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SECRET_KEY: TEST_SECRET_KEY  # Used by auth_utils.py
+      SECRET_KEY: TEST_SECRET_KEY
 
     steps:
       - uses: actions/checkout@v3
@@ -45,20 +45,39 @@ jobs:
             sleep 2
           done
 
-      - name: Run Ruff and Flake8
+      - name: Run Ruff (Lint)
         run: |
+          echo "🔍 Running Ruff (Lint)"
           poetry run ruff . --quiet
+
+      - name: Run Flake8 (Style Guide)
+        run: |
+          echo "🧹 Running Flake8"
           poetry run flake8 .
 
       - name: Run Bandit (Security Static Analysis)
-        run: poetry run bandit -r backend -ll
+        run: |
+          echo "🔐 Running Bandit"
+          poetry run bandit -r backend -ll
 
       - name: Run Pytest with Coverage
-        run: poetry run pytest --cov=backend/app --cov-report=term-missing --cov-fail-under=80
-
-      - name: Run Mutation Testing
         run: |
-          poetry run mutmut run || true
+          echo "🧪 Running Pytest with Coverage"
+          poetry run pytest --cov=backend/app \
+                            --cov-report=term-missing \
+                            --cov-fail-under=80
+
+      - name: Run Mutation Testing (Mutmut)
+        continue-on-error: true
+        run: |
+          echo "🧬 Running Mutmut (Mutation Testing)"
+          poetry run mutmut run
 
       - name: Run Locust Performance Test
-        run: poetry run locust -f tests/perf_test_locust.py --headless --host=http://localhost:8000 -u 5 -r 2 -t 10s || true
+        continue-on-error: true
+        run: |
+          echo "📈 Running Locust Performance Test"
+          poetry run locust -f tests/perf_test_locust.py \
+                            --headless \
+                            --host=http://localhost:8000 \
+                            -u 5 -r 2 -t 10s

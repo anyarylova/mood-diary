@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Form
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from backend.app.auth_utils import create_access_token
-from fastapi import Form
 from backend.app.logger import logger
 from backend.app import models, schemas, database
 
@@ -23,15 +22,17 @@ def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(
         models.User.username == user.username).first()
     if db_user:
+        logger.warning(
+            f"Registration failed: username '{user.username}' already exists.")
         raise HTTPException(status_code=400, detail="Username already taken")
 
     hashed_pw = hash_password(user.password)
-    new_user = models.User(
-        username=user.username, hashed_password=hashed_pw)
+    new_user = models.User(username=user.username, hashed_password=hashed_pw)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    logger.info(f"User registered: {user.username}")
+
+    logger.info(f"New user registered: {user.username}")
     return {"msg": f"User '{user.username}' registered successfully."}
 
 
@@ -43,7 +44,9 @@ def login(
 ):
     db_user = db.query(models.User).filter(
         models.User.username == username).first()
+
     if not db_user or not verify_password(password, db_user.hashed_password):
+        logger.warning(f"Failed login attempt for username: {username}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(data={"sub": db_user.username})

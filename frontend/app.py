@@ -230,75 +230,84 @@ def view_calendar():
     st.subheader("📅 Mood Calendar")
     res = requests.get(f"{API_URL}/mood/", headers=get_headers())
 
-    if res.status_code == 200:
-        moods = res.json()
-        if not moods:
-            st.info("No mood entries to show.")
-            return
-
-        df = pd.DataFrame(moods)
-        df["date"] = pd.to_datetime(df["date"])
-        df = df.sort_values("date")
-
-        today = pd.Timestamp.today()
-        current_month = today.month
-        df = df[df["date"].dt.month == current_month]
-
-        if df.empty:
-            st.info("No moods recorded this month.")
-            return
-
-        df["day"] = df["date"].dt.day
-        df["weekday"] = df["date"].dt.weekday
-        df["week"] = df["date"].dt.isocalendar().week
-
-        mood_map = {
-            0: "😔",
-            1: "🙁",
-            2: "🙂",
-            3: "😊",
-            4: "😄"
-        }
-        mood_label_map = {
-            0: "Sad",
-            1: "Low",
-            2: "Neutral",
-            3: "Happy",
-            4: "Excited"
-        }
-        df["emoji"] = df["mood"].map(mood_map)
-        df["mood_label"] = df["mood"].map(mood_label_map)
-        days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        chart = alt.Chart(df).mark_text(
-            align="center",
-            baseline="middle",
-            size=30
-        ).encode(
-            x=alt.X(
-                "weekday:O",
-                title="Day of Week",
-                axis=alt.Axis(
-                    labels=True,
-                    labelExpr=f"{days_of_week}[datum.value]"
-
-                )
-            ),
-            y=alt.Y("week:O", title="Week"),
-            text="emoji:N",
-            tooltip=[
-                alt.Tooltip("date:T", title="Date"),
-                alt.Tooltip("mood_label:N", title="Mood"),
-                alt.Tooltip("note:N", title="Note")
-            ]
-        ).properties(
-            width=600,
-            height=300,
-            title=f"Mood Calendar - {today.strftime('%B %Y')}"
-        )
-
-        st.altair_chart(chart, use_container_width=True)
-    else:
+    if res.status_code != 200:
         st.error(res.json().get("detail", "Failed to load moods."))
+        return
+
+    moods = res.json()
+    if not moods:
+        st.info("No mood entries to show.")
+        return
+
+    df = pd.DataFrame(moods)
+    df["date"] = pd.to_datetime(df["date"])
+    df = df.sort_values("date")
+
+    df["year"] = df["date"].dt.year
+    df["month"] = df["date"].dt.month
+    df["month_name"] = df["date"].dt.strftime("%B")
+
+    available_months = sorted(
+        df[["month", "year", "month_name"]].drop_duplicates().to_records(
+            index=False
+        ),
+        key=lambda x: (x[1], x[0]),
+        reverse=True
+    )
+
+    selected = st.selectbox(
+        "Select Month to View:",
+        available_months,
+        format_func=lambda x: f"{x[2]} {x[1]}"
+    )
+    selected_month, selected_year, _ = selected
+
+    df = df[(df["month"] == selected_month) & (df["year"] == selected_year)]
+    if df.empty:
+        st.info("No moods recorded for the selected month.")
+        return
+
+    df["day"] = df["date"].dt.day
+    df["weekday"] = df["date"].dt.weekday
+    df["week"] = df["date"].dt.isocalendar().week
+
+    mood_map = {
+        0: "😔", 1: "🙁", 2: "🙂", 3: "😊", 4: "😄"
+    }
+    mood_label_map = {
+        0: "Sad", 1: "Low", 2: "Neutral", 3: "Happy", 4: "Excited"
+    }
+    df["emoji"] = df["mood"].map(mood_map)
+    df["mood_label"] = df["mood"].map(mood_label_map)
+
+    chart = alt.Chart(df).mark_text(
+        align="center",
+        baseline="middle",
+        size=30
+    ).encode(
+        x=alt.X(
+            "weekday:O",
+            title="Day of Week",
+            axis=alt.Axis(
+                labels=True,
+                labelExpr='["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]'
+                "[datum.value]"
+            )
+        ),
+        y=alt.Y("week:O", title="Week"),
+        text="emoji:N",
+        tooltip=[
+            alt.Tooltip("date:T", title="Date"),
+            alt.Tooltip("mood_label:N", title="Mood"),
+            alt.Tooltip("note:N", title="Note")
+        ]
+    ).properties(
+        width=600,
+        height=300,
+        title=f"Mood Calendar - {selected[2]} {selected[1]}"
+    )
+
+    st.altair_chart(chart, use_container_width=True)
 
 
 # Main UI
