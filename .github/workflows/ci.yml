@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  Quality_Gate:
     runs-on: ubuntu-latest
 
     env:
