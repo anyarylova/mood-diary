@@ -4,6 +4,7 @@ from datetime import date
 import re
 
 USERNAME_REGEX = re.compile(r"^[a-zA-Z0-9_]{3,20}$")
+PASSWORD_REGEX = re.compile(r"^[a-zA-Z0-9_]{7,20}$")
 
 
 class UserCreate(BaseModel):
@@ -13,8 +14,7 @@ class UserCreate(BaseModel):
     )
     password: str = Field(
         ...,
-        min_length=7,
-        description="Password (min 7 characters)"
+        description="Password (7-20 alphanumeric characters or underscore)"
     )
 
     @field_validator('username')
@@ -23,6 +23,16 @@ class UserCreate(BaseModel):
             raise HTTPException(
                 status_code=422,
                 detail="Username must be 3-20 characters long\
+                    and contain only letters, numbers, or underscores"
+            )
+        return v
+
+    @field_validator('password')
+    def validate_password(cls, v):
+        if not PASSWORD_REGEX.match(v):
+            raise HTTPException(
+                status_code=422,
+                detail="Password must be 7-20 characters long\
                     and contain only letters, numbers, or underscores"
             )
         return v

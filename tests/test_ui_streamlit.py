@@ -21,7 +21,7 @@ def test_streamlit_register_login_log_mood():
         time.sleep(5)  # Let Streamlit load
 
         username = f"testuser_{uuid.uuid4().hex[:8]}"
-        password = "testpass"
+        password = "testpass"  # nosec B105
 
         # Fill username and password
         inputs = driver.find_elements(By.TAG_NAME, "input")

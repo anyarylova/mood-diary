@@ -7,6 +7,7 @@ import altair as alt
 import html
 
 API_URL = "http://localhost:8000"
+REQUEST_TIMEOUT = 10
 
 
 class MoodEnum(IntEnum):
@@ -40,7 +41,8 @@ def auth_form():
     if st.button("Login"):
         res = requests.post(
             f"{API_URL}/auth/login",
-            data={"username": username, "password": password}
+            data={"username": username, "password": password},
+            timeout=REQUEST_TIMEOUT
         )
         if res.status_code == 200:
             st.session_state.token = res.json()["access_token"]
@@ -54,7 +56,8 @@ def auth_form():
     if st.button("Register"):
         res = requests.post(
             f"{API_URL}/auth/register",
-            json={"username": username, "password": password}
+            json={"username": username, "password": password},
+            timeout=REQUEST_TIMEOUT
         )
         if res.status_code == 200:
             st.success("Registered! Now log in.")
@@ -87,7 +90,8 @@ def mood_entry_form():
                 "note": description,
                 "date": entry_date.isoformat()
             },
-            headers=get_headers()
+            headers=get_headers(),
+            timeout=REQUEST_TIMEOUT
         )
         if res.status_code == 200:
             st.success("Mood logged successfully!")
@@ -98,7 +102,11 @@ def mood_entry_form():
 # View mood history
 def view_moods():
     st.subheader("📖 Mood History")
-    res = requests.get(f"{API_URL}/mood/", headers=get_headers())
+    res = requests.get(
+        f"{API_URL}/mood/",
+        headers=get_headers(),
+        timeout=REQUEST_TIMEOUT
+    )
 
     if res.status_code == 200:
         moods = res.json()
@@ -131,7 +139,11 @@ def view_moods():
 
 def view_stats():
     st.subheader("📊 Mood Statistics")
-    res = requests.get(f"{API_URL}/stats/", headers=get_headers())
+    res = requests.get(
+        f"{API_URL}/stats/",
+        headers=get_headers(),
+        timeout=REQUEST_TIMEOUT
+    )
     if res.status_code == 200:
         stats = res.json()
 
@@ -179,7 +191,11 @@ def view_stats():
 
 def view_graph():
     st.subheader("Mood Graph for the Last Month")
-    res = requests.get(f"{API_URL}/mood/", headers=get_headers())
+    res = requests.get(
+        f"{API_URL}/mood/",
+        headers=get_headers(),
+        timeout=REQUEST_TIMEOUT
+    )
 
     if res.status_code == 200:
         moods = res.json()
@@ -191,8 +207,8 @@ def view_graph():
         df["date"] = pd.to_datetime(df["date"])
         df = df.sort_values("date")
 
-        last_month = pd.Timestamp.today() - pd.Timedelta(days=30)
-        df_last_month = df[df["date"] >= last_month]
+        last_month = pd.Timestamp.now(tz='UTC') - pd.Timedelta(days=30)
+        df_last_month = df[df["date"] >= last_month.tz_convert(None)]
 
         mood_map = {
             0: "😔 Sad",
@@ -229,7 +245,11 @@ def view_graph():
 
 def view_calendar():
     st.subheader("📅 Mood Calendar")
-    res = requests.get(f"{API_URL}/mood/", headers=get_headers())
+    res = requests.get(
+        f"{API_URL}/mood/",
+        headers=get_headers(),
+        timeout=REQUEST_TIMEOUT
+    )
 
     if res.status_code != 200:
         st.error(res.json().get("detail", "Failed to load moods."))
@@ -311,6 +331,7 @@ def view_calendar():
     st.altair_chart(chart, use_container_width=True)
 
 
+@st.cache_data(ttl=3600)
 def get_today_quote():
     try:
         res = requests.get("https://zenquotes.io/api/today", timeout=5)

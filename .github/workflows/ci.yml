@@ -60,9 +60,9 @@ jobs:
           echo "🔐 Running Bandit"
           poetry run bandit -r backend -ll
 
-      - name: Run Pytest with Coverage
+      - name: Run Pytest with Coverage and Fuzzing
         run: |
-          echo "🧪 Running Pytest with Coverage"
+          echo "🧪 Running Pytest with Coverage and Fuzzing"
           poetry run pytest --cov=backend/app \
                             --cov-report=term-missing \
                             --cov-fail-under=80
