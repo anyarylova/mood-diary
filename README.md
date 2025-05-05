@@ -1,7 +1,5 @@
 # Mood Diary Application
 
-**Version:** 1.0.0
-
 ## 1. Overview
 
 Mood Diary is a web application developed to help users maintain a personal electronic diary focused on tracking and understanding their emotional well-being. It allows users to securely log their daily mood using a simple scale, add descriptive notes, and visualize their mood history and trends over time.
