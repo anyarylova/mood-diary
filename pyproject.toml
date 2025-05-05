@@ -30,6 +30,8 @@ httpx = "^0.28.1"
 selenium = "^4.31.0"
 locust = "^2.36.2"
 mutmut = "^3.2.3"
+hypothesis = "^6.131.9"
+wfuzz = "^3.1.0"
 
 [build-system]
 requires = ["poetry-core"]
