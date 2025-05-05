@@ -8,7 +8,7 @@ Mood Diary is a web application developed to help users maintain a personal elec
 
 The application features a Python-based backend using the **FastAPI** framework and **SQLAlchemy** for interactions with an **SQLite** database. The frontend is built with **Streamlit**, providing an interactive user interface. Project dependencies are handled by **Poetry**, and a Continuous Integration (CI) pipeline using **GitHub Actions** enforces automated quality checks.
 
-![User Interface](screenshots\user_interface.png)
+![User Interface](screenshots/user_interface.png)
 
 ## 2. Features
 
@@ -51,7 +51,7 @@ This project emphasizes software quality, verified through various tools and tes
 
 - **Modularity:** Achieved through the separation of concerns described in the Architecture section (FastAPI routers, distinct backend modules, frontend/backend split). Code review confirms logical separation.
 - **Testability:** Backend code coverage exceeds **96%**, measured by `pytest-cov`. The CI pipeline enforces a minimum of 80% coverage. Key modules (`auth`, `mood`, `stats`, `schemas`, `models`) achieve 100% coverage.
-![Test Coverage](screenshots\test_coverage.png)
+![Test Coverage](screenshots/test_coverage.png)
 
 - **Modifiability:** Code style adheres to PEP8, enforced by `flake8` checks within the CI pipeline. Code complexity is kept low (verified optionally via `radon`).
 
