@@ -1,4 +1,5 @@
 # Mood Diary Application
+![CI](https://github.com/MoeJaafar/mood-diary/actions/workflows/ci.yml/badge.svg)
 
 ## 1. Overview
 
