@@ -79,13 +79,41 @@ This project emphasizes software quality, verified through various tools and tes
   - *Static Analysis:* `Bandit` scans are integrated into CI to detect common vulnerabilities.
 - **Non-republication (Logging):** Key user actions are logged in a structured **JSON format** with relevant context (user details, timestamps).
 
+Here's the updated **Section 4.5 CI/CD** to match your enhanced GitHub Actions workflow — now including linting, security scanning, testing, mutation testing, performance testing, **and artifact uploads**:
+
+---
+
 ### 4.5 CI/CD
 
-- An automated **GitHub Actions** workflow (`.github/workflows/ci.yml`) enforces:
-  - Linting (`ruff` & `flake8`)
-  - Security Scanning (`bandit`)
-  - Testing (`pytest` runs unit, integration, and fuzz tests; `mutmut` runs mutation test; `locust` runs performance tests)
-  - Code Coverage Check (`pytest-cov`, minimum 80%)
+An automated **GitHub Actions** workflow (`.github/workflows/ci.yml`) enforces and validates code quality across multiple dimensions. It runs on every push to `main` or `testing-suite`, as well as on pull requests.
+
+The pipeline performs the following:
+
+* **Linting**:
+
+  * [`ruff`](https://docs.astral.sh/ruff/) for fast Python lint checks
+  * `flake8` for style guide compliance
+* **Security Scanning**:
+
+  * `bandit` for detecting common Python security issues in the `backend/` codebase
+* **Testing**:
+
+  * `pytest` for unit, integration, and fuzz testing
+  * Coverage is measured using `pytest-cov` with a minimum threshold of **80%**
+* **Mutation Testing**:
+
+  * `mutmut` checks the strength of test cases by introducing small changes to the code and verifying that tests fail appropriately
+* **Performance Testing**:
+
+  * `locust` simulates user traffic against the running backend for basic load validation
+* **Artifact Generation**:
+
+  * All test outputs and reports (from `pytest`, `mutmut`, `locust`, `ruff`, `flake8`, and `bandit`) are saved to the `reports/` directory and uploaded as downloadable artifacts under `ci-test-artifacts` in each CI run
+* **Final Status Message**:
+
+  * A visual confirmation message (`✅ All quality checks completed!`) is printed at the end of the workflow
+
+---
 
 ## 5. Setup Instructions
 
