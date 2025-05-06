@@ -1,6 +1,14 @@
 # Mood Diary Application
 ![CI](https://github.com/MoeJaafar/mood-diary/actions/workflows/ci.yml/badge.svg)
 
+## Team Members:
+
+**Mohammad Jaafar** - m.jaafar@innopolis.university
+
+**Anna Rylova** - a.rylova@innopolis.university
+
+**Sofya Ivanova** - s.ivanova@innopolis.university
+
 ## 1. Overview
 
 Mood Diary is a web application developed to help users maintain a personal electronic diary focused on tracking and understanding their emotional well-being. It allows users to securely log their daily mood using a simple scale, add descriptive notes, and visualize their mood history and trends over time.
