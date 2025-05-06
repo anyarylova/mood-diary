@@ -79,7 +79,7 @@ def mood_entry_form():
     mood_str = st.selectbox(
         "How do you feel today?", list(mood_options.keys()))
     description = st.text_area("Describe your mood")
-    entry_date = st.date_input("Date", value=date.today())
+    entry_date = st.date_input("Date", value=date.today(), max_value=date.today())
 
     if st.button("Submit Mood"):
         mood_int = mood_options[mood_str]
