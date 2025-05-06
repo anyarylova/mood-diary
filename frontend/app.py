@@ -71,7 +71,6 @@ def auth_form():
 def mood_entry_form():
     st.subheader("Log a Mood")
     mood_options = {
-<<<<<<< HEAD
         "1 - 😔 Sad": 0,
         "2 - 🙁 Low": 1,
         "3 - 🙂 Neutral": 2,
@@ -80,15 +79,6 @@ def mood_entry_form():
     }
     mood_str = st.selectbox(
         "How do you feel today?", list(mood_options.keys()))
-=======
-        "1 - 😔": 0,
-        "2 - 🙁": 1,
-        "3 - 🙂": 2,
-        "4 - 😊": 3,
-        "5 - 😄": 4
-    }
-    mood_str = st.selectbox("How do you feel today? Rate your mood", list(mood_options.keys()))
->>>>>>> c68d62c (Add emojis for mood rating)
     description = st.text_area("Describe your mood")
     entry_date = st.date_input("Date",
                                value=date.today(),
@@ -123,7 +113,6 @@ def view_moods():
 
     if res.status_code == 200:
         moods = res.json()
-<<<<<<< HEAD
         if not moods:
             st.info("You haven't logged any moods yet.")
             return
@@ -150,20 +139,6 @@ def view_moods():
     else:
         st.error(res.json().get("detail", "Failed to load mood history."))
 
-=======
-        mood_map = {
-            0: "1 - 😔",
-            1: "2 - 🙁",
-            2: "3 - 🙂",
-            3: "4 - 😊",
-            4: "5 - 😄"
-        }
-        for m in moods:
-            mood_label = mood_map.get(m["mood"], "unknown")
-            st.markdown(f"**{m['date']}** — {mood_label}: {m.get('note', '[No description]')}")
-    else:
-        st.error("Failed to load mood history.")
->>>>>>> c68d62c (Add emojis for mood rating)
 
 def view_stats():
     st.subheader("📊 Mood Statistics")
