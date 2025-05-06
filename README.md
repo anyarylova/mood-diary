@@ -48,7 +48,7 @@ This project emphasizes software quality, verified through various tools and tes
 ### 4.1 Maintainability
 
 - **Modularity:** Achieved through the separation of concerns described in the Architecture section (FastAPI routers, distinct backend modules, frontend/backend split). Code review confirms logical separation.
-- **Testability:** Backend code coverage exceeds **96%**, measured by `pytest-cov`. The CI pipeline enforces a minimum of 80% coverage. Key modules (`auth`, `mood`, `stats`, `schemas`, `models`) achieve 100% coverage.
+- **Testability:** Backend code coverage exceeds **98%**, measured by `pytest-cov`. The CI pipeline enforces a minimum of 80% coverage. Key modules (`auth`, `mood`, `stats`, `schemas`, `models`) achieve 100% coverage.
 ![Test Coverage](screenshots/test_coverage.png)
 
 - **Modifiability:** Code style adheres to PEP8, enforced by `flake8` checks within the CI pipeline. Code complexity is kept low (verified optionally via `radon`).
