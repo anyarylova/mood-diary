@@ -89,8 +89,9 @@ jobs:
                             -u 5 -r 2 -t 10s \
                             > reports/locust-output.txt 2>&1
           echo "✅ Locust performance test completed!"
-          - name: Save Ruff, Flake8, and Bandit Outputs
-          run: |
+
+      - name: Save Ruff, Flake8, and Bandit Outputs
+        run: |
             mkdir -p reports
   
             echo "🔍 Saving Ruff output"
@@ -102,8 +103,6 @@ jobs:
             echo "🔐 Saving Bandit output"
             poetry run bandit -r backend -ll > reports/bandit-output.txt
             echo "✅ Outputs saved!"
-
-
 
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
